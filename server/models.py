@@ -104,8 +104,8 @@ class Assessment(db.Model, SerializerMixin):
     class_id = db.Column(db.Integer, db.ForeignKey('classes.id'), nullable= False)
     title = db.Column(db.String)
     body = db.Column(db.String)
-    start_time = db.Column(db.DateTime)
-    end_time = db.Column(db.DateTime)
+    start_time = db.Column(db.String)
+    end_time = db.Column(db.String)
     duration = db.Column(db.Integer)
 
     classes = db.relationship('Class', backref='assessments')
@@ -133,6 +133,7 @@ class Chat(db.Model, SerializerMixin):
     class_id = db.Column(db.Integer, db.ForeignKey('classes.id'), nullable= False)
     sender = db.Column(db.Integer, db.ForeignKey('users.id'), nullable= False)
     message = db.Column(db.String)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
 
     classes = db.relationship('Class', backref='chats')
     senders = db.relationship('User', backref= 'chats')

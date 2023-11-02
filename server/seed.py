@@ -73,7 +73,7 @@ with app.app_context():
         used_posters.add(unique_poster)  # Mark the poster as used
 
         school = School(
-            school_name=fake.name(),
+            school_name=fake.company(),
             poster=unique_poster,
             location=fake.address(),
             owner_id=random_owner.id,
@@ -91,7 +91,7 @@ with app.app_context():
     for _ in range(400):
         school_random = random.choice(schools)
         class_bd = Class(
-        class_name = fake.name(),
+        class_name = fake.color_name(),
         educator_id = random.choice(educator).id,
         school_id = school_random.id,
         )
@@ -137,8 +137,8 @@ with app.app_context():
     resources =[]
     for _ in range(250):
             resource = Resource(
-                title = fake.name(),
-                type = fake.name(),
+                title = fake.sentence(),
+                type = fake.job(),
                 url = fake.url(),
                 content = fake.text(),
                 educator_id = random.choice(educator).id
@@ -155,10 +155,10 @@ with app.app_context():
             classes_random = random.choice(classes)
             assesment = Assessment(
                 class_id = classes_random.id,
-                title = fake.name(),
+                title = fake.sentence(),
                 body = fake.text(),
-                start_time = datetime(2023, 10, 31, 9, 0, 0),
-                end_time = datetime(2023, 10, 31, 10, 0, 0),
+                start_time = '10:00',
+                end_time = '12:00',
                 duration = random.randint(120, 200)
         )
             assessments.append(assesment)
@@ -174,7 +174,6 @@ with app.app_context():
         response = Assessment_Response(
             assessment_id = assessment_random.id,
             student_id = random.choice(students).id,
-            submitted_time = datetime(2023, 10, 31, 10, 0, 0),
             work = fake.text()
         )        
         responses.append(response)
