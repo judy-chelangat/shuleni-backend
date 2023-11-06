@@ -1,8 +1,13 @@
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import validates
 from sqlalchemy_serializer import SerializerMixin
 from datetime import datetime
+from flask_bcrypt import Bcrypt
+from flask_bcrypt import generate_password_hash, check_password_hash
 
+app = Flask(__name__)
+bcrypt = Bcrypt(app)
 db = SQLAlchemy()
 
 class Role(db.Model, SerializerMixin):
@@ -26,7 +31,21 @@ class User(db.Model, SerializerMixin):
 
     role = db.relationship('Role', backref='users')
 
+    def __init__(self, name, phone_number, photo, email_address, password, role_id):
+        self.name = name
+        self.phone_number = phone_number
+        self.photo = photo
+        self.email_address = email_address
+        self.password = self.generate_password_hash(password)
+        self.role_id = role_id
 
+    def generate_password_hash(self, password):
+        return bcrypt.generate_password_hash(password).decode('utf-8')
+
+    def check_password(self, password):
+        return bcrypt.check_password_hash(self.password, password)
+    
+    
 class School(db.Model, SerializerMixin):
 
     __tablename__ = "schools"
