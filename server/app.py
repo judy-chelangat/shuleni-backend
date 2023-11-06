@@ -3,9 +3,11 @@ from flask_migrate import Migrate
 from flask_restful import Api, Resource
 from sqlalchemy import desc, asc
 from flask_cors import CORS
+import jwt
+import datetime
 
 
-from models import db, User, School, Role, Assessment, Assessment_Response, Attendance, Chat, Class, Student_Class, Resource as Resource_model
+from models import db, User, School, Role, Assessment, Assessment_Response, Attendance, Chat, Class, Student_Class, Resource as Resource_model,bcrypt, check_password_hash
 
 app = Flask(__name__)
 
@@ -996,7 +998,35 @@ class ChatsById(Resource):
             return make_response(jsonify({"message": "Chat deleted successfully"}), 200)
         else:
             return make_response(jsonify({"error": "Chat not found"}), 404)
- 
+    
+
+class Login(Resource):
+    
+    def post(self):
+        data = request.get_json()
+        
+        email_address = data.get('email_address')
+        password = data.get('password')
+        
+        user = User.query.filter_by(email_address = email_address).first()
+        
+        if user:
+            if bcrypt.check_password_hash(user.password, password):
+                token = jwt.encode(
+                    {
+                        'id': user.id,
+                        'role_id': user.role_id,
+                        'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes =120)
+                    },
+                    app.config['SECRET_KEY'],
+                    algorithm='HS256'
+                )
+                return make_response(jsonify({'message': 'Login successful', 'token':token, 'id': user.id, 'role_id': user.role_id}), 200)
+            else:
+                return make_response(jsonify({'message': 'Login failed', 'error': 'Invalid email or password'}), 404)
+            
+        else:
+            return make_response(jsonify({'message': 'Login failed', 'error': 'User not found'}), 404)
 
 api.add_resource(Users, '/users')
 api.add_resource(UserById, '/user/<int:id>')
@@ -1014,7 +1044,7 @@ api.add_resource(Assessments, '/assessments')
 api.add_resource(AssessmentsById, '/assessment/<int:id>')
 api.add_resource(Chats, '/chats')
 api.add_resource(ChatsById, '/chat/<int:id>')
-
+api.add_resource(Login, '/login')
 
 if __name__ == '__main__':
     app.run(port = 5555)
